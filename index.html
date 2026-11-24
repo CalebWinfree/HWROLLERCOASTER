@@ -269,12 +269,12 @@
 
         <section class="panel control-panel safety-panel">
           <h2>Safety envelope</h2>
-          <p>Reachable track loads will be checked against the -1 g to 4 g limits.</p>
+          <p>G-load range on the portion the car can reach with its starting energy.</p>
           <div class="safety-grid">
-            <div class="safety-stat"><span>MINIMUM</span><strong>— g</strong></div>
-            <div class="safety-stat"><span>MAXIMUM</span><strong>— g</strong></div>
+            <div class="safety-stat"><span>MINIMUM REACHABLE</span><strong><span id="min-g">—</span> g</strong></div>
+            <div class="safety-stat"><span>MAXIMUM REACHABLE</span><strong><span id="max-g">—</span> g</strong></div>
           </div>
-          <div class="status">Run the ride to evaluate this design</div>
+          <div id="safety-status" class="status" role="status">Evaluating this design…</div>
         </section>
       </aside>
     </div>

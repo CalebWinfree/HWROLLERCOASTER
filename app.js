@@ -43,7 +43,10 @@
     plotCursor: null,
     plotDistance: document.querySelector(".plot-heading-note"),
     shareUrl: document.querySelector("#share-url"),
-    loadUrl: document.querySelector("#load-url")
+    loadUrl: document.querySelector("#load-url"),
+    minG: document.querySelector("#min-g"),
+    maxG: document.querySelector("#max-g"),
+    safetyStatus: document.querySelector("#safety-status")
   };
 
   let trackPoints = cloneTrack(DEFAULT_TRACK);
@@ -401,6 +404,44 @@
     updatePlotMarkers();
   }
 
+  function analyzeSafety() {
+    const reachable = samples.filter((sample) => (
+      energyBarrierDistance === null || sample.distance < energyBarrierDistance
+    ));
+    if (energyBarrierDistance !== null) {
+      reachable.push(pointAtDistance(energyBarrierDistance));
+    }
+    const minimum = reachable.reduce((value, sample) => Math.min(value, sample.gLoad), Infinity);
+    const maximum = reachable.reduce((value, sample) => Math.max(value, sample.gLoad), -Infinity);
+    const issues = [];
+    if (minimum < MIN_G) {
+      issues.push(`minimum ${minimum.toFixed(2)} g is below -1 g`);
+    }
+    if (maximum > MAX_G) {
+      issues.push(`maximum ${maximum.toFixed(2)} g exceeds 4 g`);
+    }
+    if (energyBarrierDistance !== null) {
+      const crest = pointAtDistance(energyBarrierDistance);
+      issues.push(`not enough energy to reach the crest at ${crest.x.toFixed(1)} m`);
+    }
+    return { minimum, maximum, issues };
+  }
+
+  function renderSafetySummary() {
+    const analysis = analyzeSafety();
+    elements.minG.textContent = analysis.minimum.toFixed(2);
+    elements.maxG.textContent = analysis.maximum.toFixed(2);
+    if (analysis.issues.length === 0) {
+      elements.safetyStatus.textContent = "Safe in this model · reachable g-loads stay within -1 g to 4 g.";
+      elements.safetyStatus.classList.add("safe");
+      elements.safetyStatus.classList.remove("failed");
+    } else {
+      elements.safetyStatus.textContent = `Unsafe in this model · ${analysis.issues.join("; ")}.`;
+      elements.safetyStatus.classList.add("failed");
+      elements.safetyStatus.classList.remove("safe");
+    }
+  }
+
   function updatePlotMarkers() {
     const cursorX = chartX(ride.distance);
     if (!elements.plotCursor) {
@@ -461,6 +502,7 @@
     buildTrackSamples();
     renderTrack();
     renderPlots();
+    renderSafetySummary();
     renderReadouts();
   }
 

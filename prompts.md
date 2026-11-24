@@ -53,3 +53,7 @@ The following review was done section by section in the current session because 
 
 - **Stage 1 — mockup:** Added a dark responsive dashboard with a default track illustration, ride controls, readouts, plot area, safety panel, and educational-use notice. Checked the page in the browser at desktop size.
 - **Stage 2 — required simulator:** Replaced the illustration with a natural cubic spline and pointer/keyboard-editable handles; added energy-based speed, live animation, both plots, and g-limit/energy-turnaround failure markers. Browser checks confirmed that the default ride reaches the end, dragging updates the geometry, both the 4 g and -1 g limits stop with a marked failure, and a raised final crest causes a marked rollback.
+
+## Hand-check validation
+
+Followed the default ride in the browser and paused just after its 20 m valley point. The car was at `x = 180.032 m`, `h = 20.000 m`, with `κ = 0.010008 1/m`; the live displays read `76.8 mph` and `2.20 g`. The hand results are `v = sqrt(2*9.81*(80-20)) = 34.310348 m/s = 76.750063 mph` and `G = 1 + v²/(100*9.81) = 2.200 g`. The UI's one-decimal mph value differs by 0.050 mph, within the 0.1 mph tolerance; g differs by 0.000 g at displayed precision.

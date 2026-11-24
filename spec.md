@@ -43,7 +43,7 @@ Use the default design, `g = 9.81 m/s²`, release height `h₀ = 80 m`, and eval
 2. `v_mph = 34.310 * 2.23694 = 76.75 mph`.
 3. `G = cos(θ) + v²κ/g ≈ 1 + 1177.2/(100*9.81) = 2.200 g`.
 
-The app's interpolated spline will be checked against 76.75 mph within 0.1 mph and 2.200 g within 0.05 g at the valley control point. A separate design that rises above 80 m must turn back and mark the first `h = 80 m` turning point. A design whose computed load exceeds 4 g or drops below -1 g must stop and mark that point.
+In the browser, pausing as the car passes the valley gave `x = 180.032 m`, `h = 20.000 m`, and `κ = 0.010008 1/m`; the readouts showed `76.8 mph` and `2.20 g`. The speed readout is rounded to 0.1 mph, so its 76.8 mph display is within 0.1 mph of the hand result 76.750 mph. The g readout matches 2.200 g within 0.05 g. A separate design that rises above 80 m was also checked: the car turns back at the 80 m energy limit and marks that point. Designs that exceed 4 g or fall below -1 g stop and mark the threshold.
 
 ## Features
 

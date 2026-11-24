@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101922">
+  <title>Gravity Ride | Coaster Lab</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #101922;
+      color: #eef4f3;
+      font-synthesis: none;
+      --panel: #18242e;
+      --panel-raised: #202f3a;
+      --line: #344650;
+      --muted: #9aadb4;
+      --mint: #58e0ba;
+      --gold: #ffc96b;
+      --red: #ff7778;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(ellipse at 70% -30%, rgba(52, 124, 114, .22), transparent 58%),
+        #101922;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .shell { max-width: 1480px; margin: 0 auto; padding: 28px clamp(16px, 3vw, 42px) 40px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid #3a746d; border-radius: 13px; color: var(--mint); background: #17332f; font-size: 23px; }
+    .brand-name { font-size: 14px; font-weight: 800; letter-spacing: .12em; }
+    .brand-subtitle { margin-top: 3px; color: var(--muted); font-size: 12px; }
+    .model-badge { border: 1px solid #476069; border-radius: 999px; padding: 8px 12px; color: #c3d4d7; font-size: 11px; font-weight: 700; letter-spacing: .09em; }
+
+    .intro { margin-bottom: 22px; }
+    .intro h1 { margin: 0; font-size: clamp(28px, 4vw, 44px); letter-spacing: -.045em; }
+    .intro p { max-width: 680px; margin: 9px 0 0; color: var(--muted); line-height: 1.55; }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 18px; align-items: start; }
+    .main-column, .side-column { display: grid; gap: 18px; min-width: 0; }
+    .panel { overflow: hidden; border: 1px solid #2d3e48; border-radius: 17px; background: rgba(24, 36, 46, .94); box-shadow: 0 14px 40px rgba(0, 0, 0, .13); }
+    .panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 17px 19px; border-bottom: 1px solid #2a3a43; }
+    .panel-heading h2 { margin: 0; font-size: 14px; letter-spacing: .015em; }
+    .eyebrow { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .track-note { color: var(--muted); font-size: 11px; }
+    .track-wrap { padding: 8px 12px 0; }
+    .track-svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: none; }
+    .gridline { stroke: #2a3a43; stroke-width: 1; }
+    .axis-label { fill: #83979f; font-size: 10px; }
+    .track-shadow { fill: none; stroke: #10201f; stroke-width: 13; stroke-linecap: round; stroke-linejoin: round; }
+    .track-line { fill: none; stroke: var(--mint); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 7px rgba(88, 224, 186, .28)); }
+    .ground-line { stroke: #51616a; stroke-width: 2; }
+    .point-ring { fill: #18242e; stroke: #d2fff1; stroke-width: 2.5; }
+    .point-label { fill: #b7c8ca; font-size: 10px; }
+    .car-body { fill: var(--gold); stroke: #fff0c8; stroke-width: 2; }
+    .car-wheel { fill: #19242b; stroke: #fff0c8; stroke-width: 1.5; }
+    .failure-marker { display: none; fill: var(--red); stroke: #fff; stroke-width: 2; }
+    .track-footer { display: flex; justify-content: space-between; gap: 12px; padding: 6px 19px 16px; color: var(--muted); font-size: 11px; }
+    .legend { display: flex; align-items: center; gap: 7px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mint); }
+    .legend-dot.car { background: var(--gold); }
+
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .metric { padding: 16px; border: 1px solid #30434d; border-radius: 14px; background: #192731; }
+    .metric-label { color: var(--muted); font-size: 11px; font-weight: 650; }
+    .metric-value { margin-top: 10px; font-size: clamp(28px, 3vw, 38px); font-variant-numeric: tabular-nums; font-weight: 750; letter-spacing: -.05em; }
+    .metric-unit { margin-left: 5px; color: #a7b9bf; font-size: 13px; font-weight: 600; letter-spacing: 0; }
+    .metric-speed .metric-value { color: var(--gold); }
+    .metric-g .metric-value { color: var(--mint); }
+    .control-panel { padding: 17px; }
+    .control-panel h2 { margin: 0 0 7px; font-size: 14px; }
+    .control-panel p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .button-row { display: flex; gap: 8px; margin-top: 17px; }
+    .button { min-height: 40px; border: 1px solid #435761; border-radius: 10px; padding: 0 13px; color: #eaf5f2; background: #22343e; font-size: 12px; font-weight: 700; }
+    .button-primary { border-color: #47c9a5; color: #0e241f; background: var(--mint); }
+    .button:hover { filter: brightness(1.09); }
+    .button:focus-visible { outline: 3px solid #94ffe0; outline-offset: 2px; }
+    .status { margin-top: 13px; border-radius: 9px; padding: 10px 11px; color: #b9c9cd; background: #202f38; font-size: 11px; line-height: 1.4; }
+    .status::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%; background: #8699a0; }
+    .status.safe::before { background: var(--mint); }
+    .status.failed::before { background: var(--red); }
+    .safety-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 15px; }
+    .safety-stat { border-radius: 9px; padding: 10px; background: #202f38; }
+    .safety-stat span { display: block; color: var(--muted); font-size: 10px; }
+    .safety-stat strong { display: block; margin-top: 5px; font-size: 14px; font-variant-numeric: tabular-nums; }
+    .plot-panel { padding-bottom: 10px; }
+    .plot-heading-note { color: var(--muted); font-size: 10px; }
+    .plot-svg { display: block; width: 100%; height: auto; padding: 8px 12px 0; }
+    .plot-grid { stroke: #2b3c45; stroke-width: 1; }
+    .plot-speed { fill: none; stroke: var(--gold); stroke-width: 2.5; stroke-linecap: round; }
+    .plot-g { fill: none; stroke: var(--mint); stroke-width: 2.5; stroke-linecap: round; }
+    .plot-label { fill: #879aa1; font-size: 9px; }
+    .plot-legend { display: flex; gap: 16px; padding: 0 19px; color: var(--muted); font-size: 10px; }
+    .plot-legend b { margin-right: 5px; color: var(--gold); }
+    .plot-legend .g-key { color: var(--mint); }
+    .fine-print { margin-top: 20px; color: #83969e; font-size: 10px; line-height: 1.5; text-align: center; }
+
+    @media (max-width: 950px) {
+      .workspace { grid-template-columns: minmax(0, 1fr) 270px; }
+    }
+    @media (max-width: 760px) {
+      .shell { padding: 18px 14px 30px; }
+      .workspace { grid-template-columns: 1fr; }
+      .main-column { order: 0; }
+      .side-column { order: 1; grid-template-columns: 1fr 1fr; }
+      .safety-panel { grid-column: 1 / -1; }
+      .intro { margin-bottom: 18px; }
+      .track-note { max-width: 150px; text-align: right; line-height: 1.4; }
+    }
+    @media (max-width: 480px) {
+      .model-badge { padding: 7px 9px; font-size: 9px; }
+      .brand-mark { width: 38px; height: 38px; }
+      .panel-heading { padding: 15px; }
+      .track-wrap { padding: 8px 6px 0; }
+      .track-footer { padding-right: 13px; padding-left: 13px; font-size: 10px; }
+      .side-column { grid-template-columns: 1fr; }
+      .safety-panel { grid-column: auto; }
+      .metric { padding: 13px; }
+      .metric-value { font-size: 31px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">⌁</div>
+        <div>
+          <div class="brand-name">COASTER LAB</div>
+          <div class="brand-subtitle">A gravity ride sandbox</div>
+        </div>
+      </div>
+      <div class="model-badge">EDUCATIONAL MODEL · NO FRICTION</div>
+    </header>
+
+    <section class="intro" aria-labelledby="page-title">
+      <h1 id="page-title">Gravity Ride</h1>
+      <p>Shape a track, release the car, and explore how height and curvature change the ride.</p>
+    </section>
+
+    <div class="workspace">
+      <section class="main-column" aria-label="Track and ride plots">
+        <article class="panel track-panel">
+          <div class="panel-heading">
+            <h2>Track design</h2>
+            <span class="track-note">Drag the points to reshape · height in meters</span>
+          </div>
+          <div class="track-wrap">
+            <svg class="track-svg" viewBox="0 0 1000 375" role="img" aria-labelledby="track-title track-desc">
+              <title id="track-title">Roller coaster track design</title>
+              <desc id="track-desc">A track drops from 80 meters into a valley and climbs a second hill. Circular points indicate editable control points.</desc>
+              <g aria-hidden="true">
+                <line class="gridline" x1="65" y1="60" x2="890" y2="60"/>
+                <line class="gridline" x1="65" y1="114" x2="890" y2="114"/>
+                <line class="gridline" x1="65" y1="168" x2="890" y2="168"/>
+                <line class="gridline" x1="65" y1="222" x2="890" y2="222"/>
+                <line class="gridline" x1="65" y1="276" x2="890" y2="276"/>
+                <line class="gridline" x1="65" y1="330" x2="890" y2="330"/>
+                <line class="gridline" x1="65" y1="60" x2="65" y2="330"/>
+                <line class="gridline" x1="230" y1="60" x2="230" y2="330"/>
+                <line class="gridline" x1="395" y1="60" x2="395" y2="330"/>
+                <line class="gridline" x1="560" y1="60" x2="560" y2="330"/>
+                <line class="gridline" x1="725" y1="60" x2="725" y2="330"/>
+                <line class="gridline" x1="890" y1="60" x2="890" y2="330"/>
+                <text class="axis-label" x="30" y="334">0</text>
+                <text class="axis-label" x="25" y="280">20</text>
+                <text class="axis-label" x="25" y="226">40</text>
+                <text class="axis-label" x="25" y="172">60</text>
+                <text class="axis-label" x="25" y="118">80</text>
+                <text class="axis-label" x="19" y="64">100</text>
+                <text class="axis-label" x="60" y="352">0</text>
+                <text class="axis-label" x="220" y="352">100</text>
+                <text class="axis-label" x="385" y="352">200</text>
+                <text class="axis-label" x="550" y="352">300</text>
+                <text class="axis-label" x="715" y="352">400</text>
+                <text class="axis-label" x="875" y="352">500 m</text>
+                <line class="ground-line" x1="65" y1="330" x2="890" y2="330"/>
+                <path class="track-shadow" d="M65 114 C155 125 190 181 263 235 S330 274 362 276 S395 274 445 243 S500 160 560 154 S665 250 725 276"/>
+                <path class="track-line" d="M65 114 C155 125 190 181 263 235 S330 274 362 276 S395 274 445 243 S500 160 560 154 S665 250 725 276"/>
+                <circle class="point-ring" cx="65" cy="114" r="6"/>
+                <circle class="point-ring" cx="131" cy="141" r="5"/>
+                <circle class="point-ring" cx="197" cy="195" r="5"/>
+                <circle class="point-ring" cx="263" cy="235" r="5"/>
+                <circle class="point-ring" cx="329" cy="271" r="5"/>
+                <circle class="point-ring" cx="362" cy="276" r="5"/>
+                <circle class="point-ring" cx="395" cy="276" r="5"/>
+                <circle class="point-ring" cx="428" cy="276" r="5"/>
+                <circle class="point-ring" cx="461" cy="271" r="5"/>
+                <circle class="point-ring" cx="511" cy="243" r="5"/>
+                <circle class="point-ring" cx="577" cy="154" r="5"/>
+                <circle class="point-ring" cx="659" cy="208" r="5"/>
+                <circle class="point-ring" cx="791" cy="276" r="5"/>
+                <circle class="car-body" cx="65" cy="107" r="8"/>
+                <circle class="car-wheel" cx="60" cy="113" r="2.5"/>
+                <circle class="car-wheel" cx="70" cy="113" r="2.5"/>
+                <circle class="failure-marker" cx="0" cy="0" r="9"/>
+              </g>
+            </svg>
+          </div>
+          <div class="track-footer">
+            <div class="legend"><span class="legend-dot"></span> Track control point</div>
+            <div class="legend"><span class="legend-dot car"></span> Car · starts at rest</div>
+          </div>
+        </article>
+
+        <article class="panel plot-panel">
+          <div class="panel-heading">
+            <h2>Ride profile</h2>
+            <span class="plot-heading-note">Distance along track (m)</span>
+          </div>
+          <svg class="plot-svg" viewBox="0 0 800 210" role="img" aria-label="Placeholder plots of speed and g-force over track distance">
+            <g aria-hidden="true">
+              <line class="plot-grid" x1="48" y1="25" x2="780" y2="25"/>
+              <line class="plot-grid" x1="48" y1="65" x2="780" y2="65"/>
+              <line class="plot-grid" x1="48" y1="105" x2="780" y2="105"/>
+              <line class="plot-grid" x1="48" y1="145" x2="780" y2="145"/>
+              <line class="plot-grid" x1="48" y1="185" x2="780" y2="185"/>
+              <text class="plot-label" x="8" y="28">90</text>
+              <text class="plot-label" x="8" y="68">70</text>
+              <text class="plot-label" x="8" y="108">50</text>
+              <text class="plot-label" x="8" y="148">30</text>
+              <text class="plot-label" x="8" y="188">10</text>
+              <text class="plot-label" x="48" y="202">0</text>
+              <text class="plot-label" x="744" y="202">distance</text>
+              <path class="plot-speed" d="M48 185 C100 184 120 90 200 95 S310 135 360 70 S460 120 520 45 S660 80 780 115"/>
+              <path class="plot-g" d="M48 120 C100 100 130 170 200 145 S310 85 360 110 S460 155 520 75 S660 140 780 130"/>
+            </g>
+          </svg>
+          <div class="plot-legend"><span><b>━</b> Speed (mph)</span><span><b class="g-key">━</b> Vertical g-force (g)</span></div>
+        </article>
+      </section>
+
+      <aside class="side-column" aria-label="Ride controls and readouts">
+        <section class="metrics" aria-label="Live ride readouts">
+          <div class="metric metric-speed">
+            <div class="metric-label">SPEED</div>
+            <div class="metric-value">—<span class="metric-unit">mph</span></div>
+          </div>
+          <div class="metric metric-g">
+            <div class="metric-label">VERTICAL G</div>
+            <div class="metric-value">—<span class="metric-unit">g</span></div>
+          </div>
+        </section>
+
+        <section class="panel control-panel">
+          <h2>Ride controls</h2>
+          <p>Release the car from the first crest. Drag any white control point to change the track.</p>
+          <div class="button-row">
+            <button class="button button-primary" type="button">▶ Ride</button>
+            <button class="button" type="button">↺ Reset</button>
+          </div>
+          <div class="status">Ready to ride · no friction or air drag</div>
+        </section>
+
+        <section class="panel control-panel safety-panel">
+          <h2>Safety envelope</h2>
+          <p>Reachable track loads will be checked against the -1 g to 4 g limits.</p>
+          <div class="safety-grid">
+            <div class="safety-stat"><span>MINIMUM</span><strong>— g</strong></div>
+            <div class="safety-stat"><span>MAXIMUM</span><strong>— g</strong></div>
+          </div>
+          <div class="status">Run the ride to evaluate this design</div>
+        </section>
+      </aside>
+    </div>
+    <footer class="fine-print">Simplified physics for learning · Not for real-world coaster design or safety certification.</footer>
+  </main>
+</body>
+</html>

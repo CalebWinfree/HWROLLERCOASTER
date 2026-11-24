@@ -57,6 +57,7 @@ The following review was done section by section in the current session because 
 - **Feature 2 — safety envelope:** Added live minimum/maximum g and a pass/fail explanation for the energy-reachable route. Browser checks showed the default design as safe (`-0.35` to `3.04 g`), flagged a reshaped track exceeding both g limits, and flagged a design with an unreachable crest.
 - **Publishing setup:** Added a GitHub Actions workflow to deploy the static site to GitHub Pages on pushes to `main` and on manual runs. Publishing still requires a GitHub repository with Pages enabled and push access.
 - **Pages configuration:** The first Actions run correctly reported that Pages was disabled. Selected **GitHub Actions** as the repository's Pages source in Settings; a subsequent push will retry deployment.
+- **Publication complete:** Pushed the staged history to the public `CalebWinfree/HWROLLERCOASTER` repository. The second Pages workflow run succeeded, and the live site loaded with the track, physics, and share-link behavior working at `https://calebwinfree.github.io/HWROLLERCOASTER/`.
 
 ## Hand-check validation
 

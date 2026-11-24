@@ -41,7 +41,9 @@
     gPlot: document.querySelector("#g-plot"),
     plotFailure: document.querySelector("#plot-failure"),
     plotCursor: null,
-    plotDistance: document.querySelector(".plot-heading-note")
+    plotDistance: document.querySelector(".plot-heading-note"),
+    shareUrl: document.querySelector("#share-url"),
+    loadUrl: document.querySelector("#load-url")
   };
 
   let trackPoints = cloneTrack(DEFAULT_TRACK);
@@ -55,6 +57,95 @@
 
   function cloneTrack(points) {
     return points.map(({ x, h }) => ({ x, h }));
+  }
+
+  function decodeSharedDesign(input) {
+    if (!input.trim()) {
+      throw new Error("Paste a share link first.");
+    }
+    let url;
+    try {
+      url = new URL(input.trim(), window.location.href);
+    } catch (error) {
+      throw new Error("That is not a valid URL.");
+    }
+    const match = url.hash.match(/^#track=([A-Za-z0-9_-]+)$/);
+    if (!match) {
+      throw new Error("The URL does not contain a Gravity Ride track.");
+    }
+    let parsed;
+    try {
+      let encoded = match[1].replace(/-/g, "+").replace(/_/g, "/");
+      encoded = encoded.padEnd(Math.ceil(encoded.length / 4) * 4, "=");
+      parsed = JSON.parse(atob(encoded));
+    } catch (error) {
+      throw new Error("The track data in that URL is not valid.");
+    }
+    if (!Array.isArray(parsed) || parsed.length !== DEFAULT_TRACK.length) {
+      throw new Error(`A shared design must contain exactly ${DEFAULT_TRACK.length} points.`);
+    }
+    const points = parsed.map((pair) => {
+      if (!Array.isArray(pair) || pair.length !== 2
+        || !Number.isFinite(pair[0]) || !Number.isFinite(pair[1])) {
+        throw new Error("Each point must contain numeric x and height values.");
+      }
+      return { x: pair[0], h: pair[1] };
+    });
+    for (let index = 0; index < points.length; index += 1) {
+      const point = points[index];
+      if (point.x < 0 || point.x > 500 || point.h < 0 || point.h > 100) {
+        throw new Error("Point positions must stay within 0–500 m and 0–100 m.");
+      }
+      if (index > 0 && point.x - points[index - 1].x < MIN_POINT_GAP) {
+        throw new Error("Points must stay in left-to-right order with at least 2 m between them.");
+      }
+    }
+    return points;
+  }
+
+  function shareableUrl() {
+    const url = new URL(window.location.href);
+    const trackData = trackPoints.map(({ x, h }) => [
+      Number(x.toFixed(3)),
+      Number(h.toFixed(3))
+    ]);
+    const encoded = btoa(JSON.stringify(trackData))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/g, "");
+    url.hash = `track=${encoded}`;
+    return url.href;
+  }
+
+  async function copyShareLink() {
+    const url = shareableUrl();
+    elements.shareUrl.value = url;
+    elements.shareUrl.focus();
+    elements.shareUrl.select();
+    if (!navigator.clipboard || !window.isSecureContext) {
+      setStatus("Share link ready; clipboard access is unavailable here. Copy it from the selected field.", "");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setStatus("Share link copied to the clipboard.", "safe");
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : "clipboard permission was denied";
+      setStatus(`Share link ready, but it could not be copied (${reason}). Copy it from the selected field.`, "");
+    }
+  }
+
+  function loadSharedDesign(input) {
+    try {
+      trackPoints = decodeSharedDesign(input);
+      resetRide("Shared design loaded · ready to ride");
+      refreshDesign();
+      elements.shareUrl.value = shareableUrl();
+      setStatus("Shared design loaded · ready to ride", "safe");
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : "Invalid track data.";
+      setStatus(`Unable to load design: ${reason}`, "failed");
+    }
   }
 
   function freshRide() {
@@ -630,6 +721,17 @@
   document.querySelector("#ride-pause").addEventListener("click", pauseRide);
   document.querySelector("#ride-reset").addEventListener("click", () => resetRide());
   document.querySelector("#reset-track").addEventListener("click", resetTrack);
+  document.querySelector("#share-design").addEventListener("click", () => { void copyShareLink(); });
+  document.querySelector("#load-design").addEventListener("click", () => loadSharedDesign(elements.loadUrl.value));
+  if (window.location.hash.startsWith("#track=")) {
+    try {
+      trackPoints = decodeSharedDesign(window.location.href);
+      elements.shareUrl.value = window.location.href;
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : "Invalid track data.";
+      setStatus(`Unable to load design from this link: ${reason}`, "failed");
+    }
+  }
 
   refreshDesign();
   renderReadouts();

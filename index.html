@@ -85,6 +85,11 @@
     .button-primary { border-color: #47c9a5; color: #0e241f; background: var(--mint); }
     .button:hover { filter: brightness(1.09); }
     .button:focus-visible { outline: 3px solid #94ffe0; outline-offset: 2px; }
+    .share-field { display: grid; gap: 7px; margin-top: 13px; }
+    .share-field label { color: var(--muted); font-size: 10px; font-weight: 700; }
+    .share-field input { width: 100%; min-width: 0; min-height: 38px; border: 1px solid #3b505a; border-radius: 8px; padding: 8px 10px; color: #e8f4f1; background: #111d25; font-size: 11px; }
+    .share-field input:focus-visible { outline: 2px solid #94ffe0; outline-offset: 1px; }
+    .share-field .button { width: 100%; }
     .status { margin-top: 13px; border-radius: 9px; padding: 10px 11px; color: #b9c9cd; background: #202f38; font-size: 11px; line-height: 1.4; }
     .status::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%; background: #8699a0; }
     .status.safe::before { background: var(--mint); }
@@ -245,6 +250,21 @@
             <button id="ride-reset" class="button" type="button">↺ Reset</button>
           </div>
           <div id="ride-status" class="status" role="status">Ready to ride · no friction or air drag</div>
+        </section>
+
+        <section class="panel control-panel share-panel">
+          <h2>Share a design</h2>
+          <p>Copy a link to this track or load one someone shared with you.</p>
+          <div class="share-field">
+            <button id="share-design" class="button" type="button">Copy share link</button>
+            <label for="share-url">Link to this track</label>
+            <input id="share-url" type="text" readonly aria-label="Shareable track URL">
+          </div>
+          <div class="share-field">
+            <label for="load-url">Load a shared URL</label>
+            <input id="load-url" type="url" autocomplete="url" placeholder="Paste a Gravity Ride link">
+            <button id="load-design" class="button" type="button">Load design</button>
+          </div>
         </section>
 
         <section class="panel control-panel safety-panel">

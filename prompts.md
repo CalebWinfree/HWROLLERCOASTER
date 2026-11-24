@@ -53,6 +53,7 @@ The following review was done section by section in the current session because 
 
 - **Stage 1 — mockup:** Added a dark responsive dashboard with a default track illustration, ride controls, readouts, plot area, safety panel, and educational-use notice. Checked the page in the browser at desktop size.
 - **Stage 2 — required simulator:** Replaced the illustration with a natural cubic spline and pointer/keyboard-editable handles; added energy-based speed, live animation, both plots, and g-limit/energy-turnaround failure markers. Browser checks confirmed that the default ride reaches the end, dragging updates the geometry, both the 4 g and -1 g limits stop with a marked failure, and a raised final crest causes a marked rollback.
+- **Feature 1 — shareable designs:** Added URL encoding, clipboard copy with a manual-copy fallback, loading from a pasted URL, and automatic restoration when a shared URL opens. Verified that a changed track survives copy/load and a page reload, and that a URL without track data produces an explicit error without replacing the current design.
 
 ## Hand-check validation
 

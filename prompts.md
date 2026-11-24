@@ -48,3 +48,8 @@ The following review was done section by section in the current session because 
 4. "Add the share/restore URL feature as one focused commit and test malformed input."
 5. "Add the safety-envelope summary as one focused commit and test reachable and failed designs."
 6. "Publish the static site to GitHub Pages and verify the deployed URL."
+
+## Build stage notes
+
+- **Stage 1 — mockup:** Added a dark responsive dashboard with a default track illustration, ride controls, readouts, plot area, safety panel, and educational-use notice. Checked the page in the browser at desktop size.
+- **Stage 2 — required simulator:** Replaced the illustration with a natural cubic spline and pointer/keyboard-editable handles; added energy-based speed, live animation, both plots, and g-limit/energy-turnaround failure markers. Browser checks confirmed that the default ride reaches the end, dragging updates the geometry, both the 4 g and -1 g limits stop with a marked failure, and a raised final crest causes a marked rollback.

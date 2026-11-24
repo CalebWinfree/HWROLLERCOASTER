@@ -59,7 +59,8 @@
     .track-shadow { fill: none; stroke: #10201f; stroke-width: 13; stroke-linecap: round; stroke-linejoin: round; }
     .track-line { fill: none; stroke: var(--mint); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 7px rgba(88, 224, 186, .28)); }
     .ground-line { stroke: #51616a; stroke-width: 2; }
-    .point-ring { fill: #18242e; stroke: #d2fff1; stroke-width: 2.5; }
+    .point-ring { fill: #18242e; stroke: #d2fff1; stroke-width: 2.5; cursor: grab; touch-action: none; }
+    .point-ring:focus-visible { outline: none; stroke: var(--gold); stroke-width: 4; }
     .point-label { fill: #b7c8ca; font-size: 10px; }
     .car-body { fill: var(--gold); stroke: #fff0c8; stroke-width: 2; }
     .car-wheel { fill: #19242b; stroke: #fff0c8; stroke-width: 1.5; }
@@ -184,31 +185,22 @@
                 <text class="axis-label" x="715" y="352">400</text>
                 <text class="axis-label" x="875" y="352">500 m</text>
                 <line class="ground-line" x1="65" y1="330" x2="890" y2="330"/>
-                <path class="track-shadow" d="M65 114 C155 125 190 181 263 235 S330 274 362 276 S395 274 445 243 S500 160 560 154 S665 250 725 276"/>
-                <path class="track-line" d="M65 114 C155 125 190 181 263 235 S330 274 362 276 S395 274 445 243 S500 160 560 154 S665 250 725 276"/>
-                <circle class="point-ring" cx="65" cy="114" r="6"/>
-                <circle class="point-ring" cx="131" cy="141" r="5"/>
-                <circle class="point-ring" cx="197" cy="195" r="5"/>
-                <circle class="point-ring" cx="263" cy="235" r="5"/>
-                <circle class="point-ring" cx="329" cy="271" r="5"/>
-                <circle class="point-ring" cx="362" cy="276" r="5"/>
-                <circle class="point-ring" cx="395" cy="276" r="5"/>
-                <circle class="point-ring" cx="428" cy="276" r="5"/>
-                <circle class="point-ring" cx="461" cy="271" r="5"/>
-                <circle class="point-ring" cx="511" cy="243" r="5"/>
-                <circle class="point-ring" cx="577" cy="154" r="5"/>
-                <circle class="point-ring" cx="659" cy="208" r="5"/>
-                <circle class="point-ring" cx="791" cy="276" r="5"/>
-                <circle class="car-body" cx="65" cy="107" r="8"/>
-                <circle class="car-wheel" cx="60" cy="113" r="2.5"/>
-                <circle class="car-wheel" cx="70" cy="113" r="2.5"/>
-                <circle class="failure-marker" cx="0" cy="0" r="9"/>
+                <path id="track-shadow" class="track-shadow" d=""/>
+                <path id="track-line" class="track-line" d=""/>
+                <g id="control-points"></g>
+                <g id="car" transform="translate(65 114)">
+                  <rect class="car-body" x="-13" y="-13" width="26" height="12" rx="5"/>
+                  <circle class="car-wheel" cx="-8" cy="1" r="3"/>
+                  <circle class="car-wheel" cx="8" cy="1" r="3"/>
+                </g>
+                <circle id="failure-marker" class="failure-marker" cx="0" cy="0" r="9"/>
               </g>
             </svg>
           </div>
           <div class="track-footer">
-            <div class="legend"><span class="legend-dot"></span> Track control point</div>
+            <div class="legend"><span class="legend-dot"></span> Draggable control point</div>
             <div class="legend"><span class="legend-dot car"></span> Car · starts at rest</div>
+            <button id="reset-track" class="button" type="button">Reset track</button>
           </div>
         </article>
 
@@ -217,22 +209,15 @@
             <h2>Ride profile</h2>
             <span class="plot-heading-note">Distance along track (m)</span>
           </div>
-          <svg class="plot-svg" viewBox="0 0 800 210" role="img" aria-label="Placeholder plots of speed and g-force over track distance">
+          <svg id="profile-chart" class="plot-svg" viewBox="0 0 800 210" role="img" aria-label="Speed and g-force plotted against distance along the track">
             <g aria-hidden="true">
-              <line class="plot-grid" x1="48" y1="25" x2="780" y2="25"/>
-              <line class="plot-grid" x1="48" y1="65" x2="780" y2="65"/>
-              <line class="plot-grid" x1="48" y1="105" x2="780" y2="105"/>
-              <line class="plot-grid" x1="48" y1="145" x2="780" y2="145"/>
-              <line class="plot-grid" x1="48" y1="185" x2="780" y2="185"/>
-              <text class="plot-label" x="8" y="28">90</text>
-              <text class="plot-label" x="8" y="68">70</text>
-              <text class="plot-label" x="8" y="108">50</text>
-              <text class="plot-label" x="8" y="148">30</text>
-              <text class="plot-label" x="8" y="188">10</text>
-              <text class="plot-label" x="48" y="202">0</text>
-              <text class="plot-label" x="744" y="202">distance</text>
-              <path class="plot-speed" d="M48 185 C100 184 120 90 200 95 S310 135 360 70 S460 120 520 45 S660 80 780 115"/>
-              <path class="plot-g" d="M48 120 C100 100 130 170 200 145 S310 85 360 110 S460 155 520 75 S660 140 780 130"/>
+              <defs>
+                <clipPath id="plot-clip"><rect x="48" y="22" width="712" height="168"/></clipPath>
+              </defs>
+              <g id="chart-grid"></g>
+              <path id="speed-plot" class="plot-speed" clip-path="url(#plot-clip)" d=""/>
+              <path id="g-plot" class="plot-g" clip-path="url(#plot-clip)" d=""/>
+              <line id="plot-failure" x1="0" x2="0" y1="22" y2="190" stroke="#ff7778" stroke-width="2" stroke-dasharray="5 4" visibility="hidden"/>
             </g>
           </svg>
           <div class="plot-legend"><span><b>━</b> Speed (mph)</span><span><b class="g-key">━</b> Vertical g-force (g)</span></div>
@@ -243,11 +228,11 @@
         <section class="metrics" aria-label="Live ride readouts">
           <div class="metric metric-speed">
             <div class="metric-label">SPEED</div>
-            <div class="metric-value">—<span class="metric-unit">mph</span></div>
+            <div id="speed-value" class="metric-value" aria-live="polite">0.0<span class="metric-unit">mph</span></div>
           </div>
           <div class="metric metric-g">
             <div class="metric-label">VERTICAL G</div>
-            <div class="metric-value">—<span class="metric-unit">g</span></div>
+            <div id="g-value" class="metric-value" aria-live="polite">0.00<span class="metric-unit">g</span></div>
           </div>
         </section>
 
@@ -255,10 +240,11 @@
           <h2>Ride controls</h2>
           <p>Release the car from the first crest. Drag any white control point to change the track.</p>
           <div class="button-row">
-            <button class="button button-primary" type="button">▶ Ride</button>
-            <button class="button" type="button">↺ Reset</button>
+            <button id="ride-play" class="button button-primary" type="button">▶ Ride</button>
+            <button id="ride-pause" class="button" type="button">Ⅱ Pause</button>
+            <button id="ride-reset" class="button" type="button">↺ Reset</button>
           </div>
-          <div class="status">Ready to ride · no friction or air drag</div>
+          <div id="ride-status" class="status" role="status">Ready to ride · no friction or air drag</div>
         </section>
 
         <section class="panel control-panel safety-panel">
@@ -274,5 +260,6 @@
     </div>
     <footer class="fine-print">Simplified physics for learning · Not for real-world coaster design or safety certification.</footer>
   </main>
+<script src="app.js"></script>
 </body>
 </html>

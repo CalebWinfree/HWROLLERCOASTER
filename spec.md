@@ -6,7 +6,7 @@ Gravity Ride is a browser-based learning tool for physics students and coaster e
 
 ## Inputs
 
-- Track geometry is entered by dragging the preset control points on the track diagram. Horizontal position `x` is 0–500 m and height `h` is 0–100 m; points remain in left-to-right order. At least three points are required. The first point is the start and sets the release height.
+- Track geometry is entered by dragging the 13 preset control points on the track diagram, or by focusing a point and using the arrow keys (Shift + arrow moves 5 m). Horizontal position `x` is 0–500 m and height `h` is 0–100 m; points remain in left-to-right order with at least 2 m between neighbors. The first point is the start and sets the release height. The point count is fixed.
 - The default design starts at 80 m and descends into a 20 m valley before another hill. Its control points `(x m, h m)` are `(0,80)`, `(40,70)`, `(80,50)`, `(120,35)`, `(160,22)`, `(170,20.51456)`, `(180,20)`, `(190,20.51456)`, `(200,22)`, `(230,32)`, `(270,65)`, `(320,45)`, `(400,20)`. The user can restore this design with **Reset track**.
 - **Play**, **Pause**, and **Reset ride** control the animation; they do not change the physics.
 - The model uses `g = 9.81 m/s²`, zero friction, and zero air drag. Mass is not an input because it cancels from the energy and acceleration equations.
